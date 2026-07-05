@@ -6,6 +6,22 @@ import m1l3 from "./module-01/lesson-03";
 import m2l1 from "./module-02/lesson-01";
 import m2l2 from "./module-02/lesson-02";
 import m2l3 from "./module-02/lesson-03";
+import m3l1 from "./module-03/lesson-01";
+import m3l2 from "./module-03/lesson-02";
+import m3l3 from "./module-03/lesson-03";
+import m3l4 from "./module-03/lesson-04";
+import m3l5 from "./module-03/lesson-05";
+import m3l6 from "./module-03/lesson-06";
+import m4l1 from "./module-04/lesson-01";
+import m4l2 from "./module-04/lesson-02";
+import m4l3 from "./module-04/lesson-03";
+import m4l4 from "./module-04/lesson-04";
+import m4l5 from "./module-04/lesson-05";
+import m5l1 from "./module-05/lesson-01";
+import m5l2 from "./module-05/lesson-02";
+import m5l3 from "./module-05/lesson-03";
+import m5l4 from "./module-05/lesson-04";
+import m5l5 from "./module-05/lesson-05";
 
 /**
  * The full curriculum. Adding a lesson = create a file under /lessons and
@@ -30,44 +46,19 @@ export const curriculum: Module[] = [
     id: "module-03",
     title: "Rendering",
     description: "Server & Client Components, SSR, SSG, ISR and streaming.",
-    lessons: [],
-    comingSoon: true,
-    plannedLessons: [
-      "Server Components in depth",
-      "Client Components & the 'use client' boundary",
-      "Composition patterns across the boundary",
-      "Static rendering & generateStaticParams",
-      "Dynamic rendering & streaming with Suspense",
-      "loading.tsx and error.tsx",
-    ],
+    lessons: [m3l1, m3l2, m3l3, m3l4, m3l5, m3l6],
   },
   {
     id: "module-04",
     title: "Data & Caching",
     description: "Fetching on the server, the caching layers, and revalidation.",
-    lessons: [],
-    comingSoon: true,
-    plannedLessons: [
-      "Data fetching in Server Components",
-      "Request memoization & the data cache",
-      "Time-based and on-demand revalidation",
-      "The full router cache model",
-      "Parallel & sequential data fetching",
-    ],
+    lessons: [m4l1, m4l2, m4l3, m4l4, m4l5],
   },
   {
     id: "module-05",
     title: "Mutations & Forms",
     description: "Server Actions, forms, optimistic UI and validation.",
-    lessons: [],
-    comingSoon: true,
-    plannedLessons: [
-      "Server Actions from first principles",
-      "Forms with useActionState",
-      "Optimistic updates with useOptimistic",
-      "Validation & error handling",
-      "Project: a full CRUD feature",
-    ],
+    lessons: [m5l1, m5l2, m5l3, m5l4, m5l5],
   },
   {
     id: "module-06",

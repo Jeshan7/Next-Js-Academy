@@ -56,23 +56,36 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function readStorage(): ProgressState | null {
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    if (raw) return { ...EMPTY, ...JSON.parse(raw) };
+  } catch {
+    // corrupted storage — start fresh
+  }
+  return null;
+}
+
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<ProgressState>(EMPTY);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      if (raw) setState({ ...EMPTY, ...JSON.parse(raw) });
-    } catch {
-      // corrupted storage — start fresh
-    }
+    const stored = readStorage();
+    if (stored) setState(stored);
     setHydrated(true);
   }, []);
 
+  // Child components (e.g. LessonClient) call progress-mutating callbacks
+  // from their own mount effects, which React fires *before* this
+  // provider's own hydration effect above. Merging against localStorage
+  // directly (instead of trusting the in-memory `prev`) means those early
+  // calls still land on top of whatever was actually saved, rather than
+  // clobbering it with writes based on the not-yet-hydrated empty state.
   const update = useCallback((fn: (prev: ProgressState) => ProgressState) => {
     setState((prev) => {
-      const next = fn(prev);
+      const base = readStorage() ?? prev;
+      const next = fn(base);
       try {
         window.localStorage.setItem(KEY, JSON.stringify(next));
       } catch {
