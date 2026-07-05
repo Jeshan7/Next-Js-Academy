@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  border-color: theme("colors.ink.700");
+}
+
+html,
+body {
+  height: 100%;
+  background: theme("colors.ink.950");
+}
+
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+::selection {
+  background: theme("colors.ember.500" / 30%);
+  color: theme("colors.mist.100");
+}
+
+/* Slim, unobtrusive scrollbars matching the night-terminal theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.ink.600") transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: theme("colors.ink.600");
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: theme("colors.ink.600" / 80%);
+}
+
+/* Diagram signature motion: a soft phosphor glow on the traveling pulse dot */
+.diagram-pulse {
+  filter: drop-shadow(0 0 4px theme("colors.ember.500" / 70%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
