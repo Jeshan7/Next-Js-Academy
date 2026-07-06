@@ -4,3 +4,4 @@ out
 public/vendor/*.js
 *.tsbuildinfo
 .DS_Store
+data/progress.json

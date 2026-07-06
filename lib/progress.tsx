@@ -11,8 +11,10 @@ import React, {
 import { curriculum, orderedLessons } from "@/lessons";
 
 /**
- * Local-first progress tracking. Everything lives in localStorage so the
- * platform works fully offline and per-machine.
+ * Local-first progress tracking. localStorage gives instant reads/writes
+ * offline; every change is also persisted to data/progress.json on disk
+ * (via /api/progress) so progress survives across browsers and is a real
+ * file you can back up, not just per-browser storage.
  */
 
 export interface ProgressState {
@@ -66,6 +68,26 @@ function readStorage(): ProgressState | null {
   return null;
 }
 
+async function readFile(): Promise<ProgressState | null> {
+  try {
+    const res = await fetch("/api/progress", { cache: "no-store" });
+    const data = await res.json();
+    return data ? { ...EMPTY, ...data } : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeFile(state: ProgressState) {
+  fetch("/api/progress", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(state),
+  }).catch(() => {
+    // offline/server unavailable — localStorage still has it
+  });
+}
+
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<ProgressState>(EMPTY);
   const [hydrated, setHydrated] = useState(false);
@@ -73,7 +95,22 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = readStorage();
     if (stored) setState(stored);
-    setHydrated(true);
+
+    // The JSON file on disk is the durable source of truth once it's
+    // reachable; it wins over localStorage if it has data (e.g. progress
+    // synced from another browser), but localStorage still renders first
+    // so the UI isn't blank while this request is in flight.
+    readFile().then((fromFile) => {
+      if (fromFile) {
+        setState(fromFile);
+        try {
+          window.localStorage.setItem(KEY, JSON.stringify(fromFile));
+        } catch {}
+      } else if (stored) {
+        writeFile(stored);
+      }
+      setHydrated(true);
+    });
   }, []);
 
   // Child components (e.g. LessonClient) call progress-mutating callbacks
@@ -91,6 +128,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       } catch {
         // storage full/unavailable — keep in-memory state
       }
+      writeFile(next);
       return next;
     });
   }, []);
@@ -171,6 +209,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.removeItem(KEY);
     } catch {}
+    writeFile(EMPTY);
     setState(EMPTY);
   }, []);
 

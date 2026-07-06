@@ -9,6 +9,8 @@ import {
   Clock,
   Flame,
   Lock,
+  PanelLeftClose,
+  PanelLeftOpen,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -24,6 +26,7 @@ export function Sidebar() {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [progressOpen, setProgressOpen] = useState(true);
+  const [open, setOpen] = useState(true);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return curriculum;
@@ -36,15 +39,40 @@ export function Sidebar() {
       .filter((mod) => mod.lessons.length > 0 || mod.title.toLowerCase().includes(q));
   }, [query]);
 
+  if (!open) {
+    return (
+      <aside className="flex h-full w-12 shrink-0 flex-col items-center border-r border-ink-700 bg-ink-900 py-4">
+        <button
+          onClick={() => setOpen(true)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-mist-400 hover:bg-ink-800 hover:text-mist-200"
+          aria-label="Expand sidebar"
+          title="Expand sidebar"
+        >
+          <PanelLeftOpen size={16} />
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col border-r border-ink-700 bg-ink-900">
       <div className="shrink-0 border-b border-ink-700 p-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ember-500 font-mono text-sm font-bold text-ink-950">
-            λ
-          </span>
-          <span className="text-sm font-bold tracking-tight text-mist-100">Next.js Academy</span>
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ember-500 font-mono text-sm font-bold text-ink-950">
+              λ
+            </span>
+            <span className="text-sm font-bold tracking-tight text-mist-100">Next.js Academy</span>
+          </Link>
+          <button
+            onClick={() => setOpen(false)}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-mist-400 hover:bg-ink-800 hover:text-mist-200"
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose size={15} />
+          </button>
+        </div>
 
         <div className="mt-4 space-y-2">
           <button
