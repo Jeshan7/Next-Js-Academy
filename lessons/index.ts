@@ -22,6 +22,16 @@ import m5l2 from "./module-05/lesson-02";
 import m5l3 from "./module-05/lesson-03";
 import m5l4 from "./module-05/lesson-04";
 import m5l5 from "./module-05/lesson-05";
+import m6l1 from "./module-06/lesson-01";
+import m6l2 from "./module-06/lesson-02";
+import m6l3 from "./module-06/lesson-03";
+import m6l4 from "./module-06/lesson-04";
+import m6l5 from "./module-06/lesson-05";
+import m7l1 from "./module-07/lesson-01";
+import m7l2 from "./module-07/lesson-02";
+import m7l3 from "./module-07/lesson-03";
+import m7l4 from "./module-07/lesson-04";
+import m7l5 from "./module-07/lesson-05";
 
 /**
  * The full curriculum. Adding a lesson = create a file under /lessons and
@@ -64,29 +74,13 @@ export const curriculum: Module[] = [
     id: "module-06",
     title: "Backend in Next.js",
     description: "Route Handlers, middleware, authentication and databases.",
-    lessons: [],
-    comingSoon: true,
-    plannedLessons: [
-      "Route Handlers (API endpoints)",
-      "Middleware & the edge",
-      "Authentication patterns & sessions",
-      "Prisma & PostgreSQL integration",
-      "Project: authenticated dashboard",
-    ],
+    lessons: [m6l1, m6l2, m6l3, m6l4, m6l5],
   },
   {
     id: "module-07",
     title: "Production",
     description: "Metadata & SEO, performance, testing, deployment and architecture.",
-    lessons: [],
-    comingSoon: true,
-    plannedLessons: [
-      "Metadata API & SEO",
-      "Image, font and script optimization",
-      "Testing Next.js applications",
-      "Deployment & environments",
-      "Production architecture patterns",
-    ],
+    lessons: [m7l1, m7l2, m7l3, m7l4, m7l5],
   },
 ];
 

@@ -158,15 +158,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     [update]
   );
 
-  const isUnlocked = useCallback(
-    (lessonId: string) => {
-      const index = orderedLessons.findIndex((l) => l.lesson.id === lessonId);
-      if (index <= 0) return true;
-      const previous = orderedLessons[index - 1];
-      return !!state.completedLessons[previous.lesson.id];
-    },
-    [state.completedLessons]
-  );
+  const isUnlocked = useCallback((_lessonId: string) => true, []);
 
   const completionPercent = useMemo(() => {
     const total = orderedLessons.length;

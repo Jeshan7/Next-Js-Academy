@@ -622,6 +622,223 @@ function CrudDataFlow() {
   );
 }
 
+function RouteHandlerFlow() {
+  return (
+    <Frame title="Request → route.ts → handler function → response" height={260}>
+      <Defs />
+      <Node x={10} y={100} w={130} h={50} text="GET /api/tasks" sub="incoming request" accent />
+      <Node x={170} y={100} w={170} h={50} text="app/api/tasks/route.ts" sub="matched by folder path" accent />
+      <Node x={370} y={40} w={220} h={44} text="export async function GET(request)" sub="method → function name" />
+      <Node x={370} y={148} w={220} h={44} text="export async function POST(request)" sub="only called for POST" />
+      <Node x={620 - 130} y={220} w={130} h={40} text="Response.json(...)" sub="sent back to the caller" accent />
+      <Arrow d="M140 125 H 166" />
+      <Arrow d="M340 112 C 355 90, 360 70, 366 62" />
+      <Arrow d="M340 138 C 355 155, 360 165, 366 170" />
+      <Arrow d="M480 84 V 216" dashed />
+      <Pulse path="M140 125 H 340" dur={2.4} />
+      <text x={10} y={200} className={small}>same folder-to-URL mapping as page.tsx — only the file name and export shape differ</text>
+      <text x={10} y={216} className={small}>a method with no matching export automatically responds 405, with nothing extra to write</text>
+    </Frame>
+  );
+}
+
+function MiddlewarePipeline() {
+  return (
+    <Frame title="Middleware intercepts before the router ever matches a route" height={280}>
+      <Defs />
+      <Node x={10} y={100} w={140} h={50} text="Incoming request" accent />
+      <Node x={190} y={100} w={160} h={50} text="middleware.ts" sub="Edge Runtime, matcher-scoped" accent />
+      <Node x={400} y={20} w={210} h={44} text="Pass through" sub="NextResponse.next()" />
+      <Node x={400} y={100} w={210} h={44} text="Redirect" sub="URL changes" />
+      <Node x={400} y={180} w={210} h={44} text="Rewrite" sub="URL stays, content changes" />
+      <Arrow d="M150 125 H 186" />
+      <Arrow d="M350 108 C 370 80, 380 60, 396 44" />
+      <Arrow d="M350 120 H 396" />
+      <Arrow d="M350 132 C 370 160, 380 180, 396 198" />
+      <text x={620} y={44} className={small} textAnchor="end">→ router</text>
+      <Pulse path="M150 125 H 350" dur={2.2} />
+      <text x={10} y={240} className={small}>the Edge Runtime trades full Node.js APIs for a fast start — middleware sits on the hot path of every matched request</text>
+      <text x={10} y={256} className={small}>a missing or overly broad matcher means this cost is paid by requests that never needed it</text>
+    </Frame>
+  );
+}
+
+function AuthSessionFlow() {
+  return (
+    <Frame title="Login to protected access, and the checks along the way" height={280}>
+      <Defs />
+      <Node x={10} y={20} w={150} h={44} text="Login succeeds" sub="session created" accent />
+      <Node x={210} y={20} w={200} h={44} text="Session cookie" sub="attached automatically by the browser" accent />
+      <Node x={10} y={110} w={150} h={50} text="Later request" sub="carries the session cookie" />
+      <Node x={210} y={110} w={200} h={50} text="Middleware check" sub="fast, coarse gate" />
+      <Node x={460} y={110} w={160} h={50} text="Server Component" sub="authoritative check" accent />
+      <Node x={210} y={200} w={200} h={44} text="Redirect to /login" sub="if no session" />
+      <Node x={460} y={200} w={160} h={44} text="Access granted" sub="data fetched, scoped to user" accent />
+      <Arrow d="M160 42 H 206" />
+      <Arrow d="M160 135 H 206" />
+      <Arrow d="M410 135 H 456" />
+      <Arrow d="M310 154 V 196" dashed />
+      <Arrow d="M540 154 V 196" />
+      <Pulse path="M160 135 H 540" dur={2.6} />
+      <text x={10} y={260} className={small}>client-side conditionals never appear in this diagram on purpose — hiding UI is not one of the real checks</text>
+    </Frame>
+  );
+}
+
+function PrismaConnectionFlow() {
+  return (
+    <Frame title="Prisma Client → connection pool → PostgreSQL" height={260}>
+      <Defs />
+      <Node x={10} y={100} w={170} h={50} text="Server Component / Action" sub="await db.post.findMany()" accent />
+      <Node x={230} y={100} w={150} h={50} text="Prisma Client" sub="generated from schema.prisma" accent />
+      <Node x={430} y={100} w={170} h={50} text="Connection pool" sub="bounded, reused connections" />
+      <Node x={430} y={20} w={170} h={40} text="PostgreSQL" sub="hard limit on connections" accent />
+      <Arrow d="M180 125 H 226" />
+      <Arrow d="M380 125 H 426" />
+      <Arrow d="M515 96 V 64" />
+      <Pulse path="M180 125 H 515 V64" dur={2.8} />
+      <text x={10} y={200} className={small}>Client Components never appear here — database access is server-only, so this diagram has no client-side branch</text>
+      <text x={10} y={216} className={small}>serverless/edge: many short-lived function instances share the pool instead of each holding its own open connection</text>
+    </Frame>
+  );
+}
+
+function ProtectedDashboardLifecycle() {
+  return (
+    <Frame title="One protected page, four steps in order" height={300}>
+      <Defs />
+      <Node x={10} y={20} w={170} h={44} text="Request: /dashboard" accent />
+      <Node x={210} y={20} w={190} h={44} text="Middleware check" sub="fast, coarse gate" />
+      <Node x={430} y={20} w={180} h={44} text="Redirect to /login" sub="if no session" />
+      <Node x={210} y={100} w={190} h={50} text="Server Component" sub="re-checks the session — authoritative" accent />
+      <Node x={430} y={100} w={180} h={50} text="Scoped query" sub="where: userId = session.userId" accent />
+      <Node x={210} y={190} w={400} h={50} text="Server Action available" sub="re-checks session, validates, writes scoped, revalidates" accent />
+      <Arrow d="M180 42 H 206" />
+      <Arrow d="M400 32 C 415 32, 420 32, 426 32" dashed />
+      <Arrow d="M305 64 V 96" />
+      <Arrow d="M400 125 H 426" />
+      <Arrow d="M310 150 V 186" />
+      <Pulse path="M180 42 H 400 V32 M305 64 V96 H400" dur={3} />
+      <text x={10} y={260} className={small}>middleware being present never removes the Server Component's own check — both exist for different reasons</text>
+      <text x={10} y={276} className={small}>the same session identity is re-derived at every step rather than trusted from the previous one</text>
+    </Frame>
+  );
+}
+
+function MetadataResolution() {
+  return (
+    <Frame title="Metadata merges down the layout tree, same nesting as UI" height={300}>
+      <Defs />
+      <rect x={20} y={16} width={600} height={260} rx={12} className="fill-ink-800 stroke-ink-600" strokeWidth={1} />
+      <text x={36} y={40} className={label}>app/layout.tsx</text>
+      <text x={36} y={58} className={small}>title: template "%s | Acme", openGraph.siteName: "Acme"</text>
+      <rect x={56} y={70} width={540} height={180} rx={10} className="fill-ink-700/60 stroke-ink-600" strokeWidth={1} />
+      <text x={72} y={94} className={label}>app/blog/layout.tsx</text>
+      <text x={72} y={112} className={small}>openGraph.images: default blog image</text>
+      <rect x={92} y={124} width={200} height={100} rx={8} className="fill-ember-500/10 stroke-ember-500" strokeWidth={1} />
+      <text x={192} y={148} textAnchor="middle" className={label}>page.tsx</text>
+      <text x={192} y={166} textAnchor="middle" className={small}>title: "Post title"</text>
+      <text x={192} y={182} textAnchor="middle" className={small}>openGraph.images: post image</text>
+      <Node x={340} y={124} w={230} h={100} text="Resolved <head>" sub="title templated + own image wins" accent />
+      <Arrow d="M292 174 H 336" />
+      <Pulse path="M292 174 H 336" dur={2} />
+      <text x={36} y={270} className={small}>each layer contributes fields; the most specific layer wins per field, not per object</text>
+    </Frame>
+  );
+}
+
+function AssetOptimizationTimeline() {
+  return (
+    <Frame title="Loading timeline: unoptimized vs optimized" height={300}>
+      <Defs />
+      <text x={20} y={26} className={label}>Unoptimized</text>
+      <Node x={20} y={38} w={170} h={44} text="Unsized <img>" sub="layout shift when it loads" />
+      <Node x={210} y={38} w={190} h={44} text="Render-blocking font request" sub="external font CDN" />
+      <Node x={420} y={38} w={180} h={44} text="Blocking 3rd-party <script>" sub="delays interactivity" />
+      <text x={20} y={104} className={small}>visible content jumps as each resource arrives late and unannounced</text>
+
+      <text x={20} y={150} className={label}>Optimized — next/image, next/font, next/script</text>
+      <Node x={20} y={162} w={170} h={44} text="next/image" sub="width/height reserved — no shift" accent />
+      <Node x={210} y={162} w={190} h={44} text="next/font" sub="self-hosted at build time" accent />
+      <Node x={420} y={162} w={180} h={44} text="next/script lazyOnload" sub="loads after page is interactive" accent />
+      <rect x={20} y={220} width={580} height={4} rx={2} className="fill-mist-500/40" />
+      <circle cx={30} cy={222} r={5} className={ember} />
+      <circle cx={300} cy={222} r={5} className={ember} />
+      <circle cx={570} cy={222} r={5} className={ember} />
+      <Pulse path="M30 222 H 570" dur={3} />
+      <text x={20} y={256} className={small}>reserved space + self-hosted assets + deferred scripts — nothing shifts, nothing blocks the main thread early</text>
+    </Frame>
+  );
+}
+
+function TestingPyramid() {
+  return (
+    <Frame title="The testing pyramid, mapped to Next.js concepts" height={320}>
+      <Defs />
+      <Node x={220} y={20} w={200} h={50} text="E2E" sub="Playwright — full user flows across real pages" accent />
+      <Node x={140} y={100} w={360} h={50} text="Integration" sub="component behavior, Client Components, forms" />
+      <Node x={60} y={180} w={520} h={50} text="Unit" sub="pure functions, utilities, the logic Server Components call" accent />
+      <Arrow d="M320 70 V 96" />
+      <Arrow d="M320 150 V 176" />
+      <Pulse path="M320 70 V 230" dur={2.6} />
+      <text x={20} y={260} className={small}>Server Components are awkward to render in a unit test — test the data/logic functions they call instead</text>
+      <text x={20} y={278} className={small}>Client Components test like ordinary React components; full flows (login, checkout) belong at the E2E layer</text>
+      <text x={20} y={296} className={small}>more tests at the base, fewer (but higher-value) tests at the top — cost and confidence trade off by layer</text>
+    </Frame>
+  );
+}
+
+function EnvironmentPipeline() {
+  return (
+    <Frame title="One build artifact, promoted through environments" height={280}>
+      <Defs />
+      <Node x={10} y={100} w={130} h={50} text="Local" sub="next dev, .env.local" accent />
+      <Node x={180} y={100} w={130} h={50} text="Preview" sub="per-PR deploy" />
+      <Node x={350} y={100} w={130} h={50} text="Staging" sub="pre-prod checks" />
+      <Node x={520} y={100} w={100} h={50} text="Production" sub="live traffic" accent />
+      <Arrow d="M140 125 H 176" />
+      <Arrow d="M310 125 H 346" />
+      <Arrow d="M480 125 H 516" />
+      <Pulse path="M140 125 H 516" dur={3} />
+      <Node x={180} y={20} w={440} h={44} text="next build output" sub="the same static assets + server bundle flow through every stage" accent />
+      <Arrow d="M400 64 V 96" dashed />
+      <text x={10} y={200} className={small}>env vars are injected per stage, not baked into the artifact — the same build promotes forward unchanged</text>
+      <text x={10} y={218} className={small}>NEXT_PUBLIC_* vars are bundled into client code at build time; a missing var per-stage is a common deploy bug</text>
+    </Frame>
+  );
+}
+
+function ProductionArchitectureOverview() {
+  return (
+    <Frame title="A request's full journey through a production Next.js app" height={420}>
+      <Defs />
+      <Node x={10} y={10} w={160} h={50} text="Incoming request" sub="/dashboard/reports" accent />
+      <Node x={200} y={10} w={170} h={50} text="Middleware" sub="Edge — auth gate, redirects" />
+      <Node x={400} y={10} w={220} h={50} text="Rendering strategy per route" sub="static / dynamic / streaming (Module 3)" accent />
+
+      <Node x={400} y={90} w={220} h={56} text="Caching layers" sub="request memo → data cache → route cache → router cache (Module 4)" accent />
+      <Node x={200} y={90} w={170} h={56} text="Server Component" sub="re-checks session, fetches scoped data" />
+
+      <Node x={10} y={190} w={160} h={56} text="Mutation path" sub="Server Action or Route Handler (Modules 5–6)" accent />
+      <Node x={200} y={190} w={170} h={56} text="Validation" sub="client = UX polish, server = real boundary" />
+      <Node x={400} y={190} w={220} h={56} text="Revalidation" sub="revalidatePath/Tag clears the right cache layer" accent />
+
+      <Node x={150} y={280} w={340} h={56} text="Folder structure" sub="colocation near features vs central shared folders (Module 1)" />
+
+      <Arrow d="M170 35 H 196" />
+      <Arrow d="M370 35 H 396" />
+      <Arrow d="M480 60 V 86" />
+      <Arrow d="M370 118 H 396" />
+      <Arrow d="M200 146 C 150 160, 100 175, 90 186" />
+      <Arrow d="M170 218 H 196" />
+      <Arrow d="M370 218 H 396" />
+      <Pulse path="M170 35 H 480 V146 H90 V218 H480" dur={4} />
+      <text x={10} y={370} className={small}>every route makes its own rendering + caching + mutation choices; folder structure is the organizing layer that keeps</text>
+      <text x={10} y={388} className={small}>hundreds of such routes navigable at real scale — none of these decisions are made in isolation from the others</text>
+    </Frame>
+  );
+}
+
 export const diagramRegistry: Record<string, React.ComponentType> = {
   "rendering-spectrum": RenderingSpectrum,
   "component-tree": ComponentTree,
@@ -645,4 +862,14 @@ export const diagramRegistry: Record<string, React.ComponentType> = {
   "optimistic-vs-pessimistic": OptimisticVsPessimistic,
   "validation-layers": ValidationLayers,
   "crud-data-flow": CrudDataFlow,
+  "route-handler-flow": RouteHandlerFlow,
+  "middleware-pipeline": MiddlewarePipeline,
+  "auth-session-flow": AuthSessionFlow,
+  "prisma-connection-flow": PrismaConnectionFlow,
+  "protected-dashboard-lifecycle": ProtectedDashboardLifecycle,
+  "metadata-resolution": MetadataResolution,
+  "asset-optimization-timeline": AssetOptimizationTimeline,
+  "testing-pyramid": TestingPyramid,
+  "environment-pipeline": EnvironmentPipeline,
+  "production-architecture-overview": ProductionArchitectureOverview,
 };
